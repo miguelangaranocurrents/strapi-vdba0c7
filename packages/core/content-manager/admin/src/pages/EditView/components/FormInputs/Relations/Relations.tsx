@@ -750,11 +750,20 @@ const RelationModalWithContext = ({
 
   const options = data?.results ?? [];
 
+  /**
+   * The search term typed by the user. This is tracked separately from `textValue` because
+   * the combobox also updates its text value programmatically (e.g. with the label of the
+   * option that was just selected), which must not be used as a search query.
+   */
+  const searchTermRef = React.useRef('');
+
   React.useLayoutEffect(() => {
     setTextValue('');
+    searchTermRef.current = '';
   }, [fieldValue]);
 
   const handleSearch = async (search: string) => {
+    searchTermRef.current = search;
     setSearchParams((s) => ({ ...s, _q: search, page: 1 }));
   };
   return (
@@ -798,7 +807,7 @@ const RelationModalWithContext = ({
           hasMoreItems={hasNextPage}
           loading={isLoadingSearchRelations || isLoadingPermissions}
           onOpenChange={() => {
-            handleSearch(textValue ?? '');
+            handleSearch(searchTermRef.current);
           }}
           noOptionsMessage={() =>
             formatMessage({
